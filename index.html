@@ -665,8 +665,7 @@ function renderTable(){
         <option value="yes" ${reached==='yes'?'selected':''}>✓ Yes</option>
       </select></td>
       <td><select class="inline-select" onclick="event.stopPropagation()" onchange="ss('${inv.id}','response',this.value)">
-        ${['Pending','No Response','Wants Intro','Pass','Call Scheduled'].map(r=>`<option ${response===r?'selected':''}>${r}</option>`).join('')}
-      </select></td>
+${['Pending','No Response','N/A','Wants Intro','Pass','Call Scheduled'].map(r=>`<option ${response===r?'selected':''}>${r}</option>`).join('')}      </select></td>
       <td><select class="inline-select" onclick="event.stopPropagation()" onchange="ss('${inv.id}','fee',this.value)">
         ${['No','Sent','Yes'].map(f=>`<option ${fee===f?'selected':''}>${f}</option>`).join('')}
       </select></td>
@@ -698,6 +697,12 @@ function expandRow(inv){
     <div class="expand-section">
       <h4>Deal Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;background:var(--purple-pale);color:var(--purple);padding:1px 5px;border-radius:3px;margin-left:4px">${dealName}</span></h4>
       <textarea class="notes-area" id="notes-${inv.id}" onclick="event.stopPropagation()">${notes}</textarea>
+      <button class="save-btn" onclick="event.stopPropagation();saveNote('${inv.id}')">Save Notes</button>
+<div style="margin-top:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+  <label style="font-size:11px;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:.6px">Last Contact</label>
+  <input type="text" id="lc-${inv.id}" value="${gs(inv,'lastContact')}" placeholder="e.g. June 28, 2026" onclick="event.stopPropagation()" style="padding:5px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:Inter,sans-serif;outline:none;width:160px" onfocus="this.style.borderColor='var(--purple)'" onblur="this.style.borderColor='var(--border)'">
+  <button class="save-btn" onclick="event.stopPropagation();saveLastContact('${inv.id}')">Save Date</button>
+</div>
       <button class="save-btn" onclick="event.stopPropagation();saveNote('${inv.id}')">Save Notes</button>
       <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openEditInvModal('${inv.id}')">Edit Profile</button>
