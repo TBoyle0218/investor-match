@@ -386,8 +386,7 @@ body{font-family:'Inter',sans-serif;background:var(--offwhite);color:var(--text)
     </div>
     <div class="form-grid">
       <div class="form-group"><label>Fee Agreement</label><select class="form-input" id="f-fee"><option>No</option><option>Sent</option><option>Yes</option></select></div>
-      <div class="form-group"><label>Last Contact Date</label><input class="form-input" type="date" id="f-date"></div>
-    </div>
+<div class="form-group"><label>Last Contact Date</label><input class="form-input" type="text" id="f-date" placeholder="e.g. June 28, 2026"></div>    </div>
     <div class="form-grid fg1"><div class="form-group"><label>Deal Notes</label><textarea class="form-input" id="f-notes" style="min-height:75px;resize:vertical" placeholder="Deal fit notes, conversation history, next steps…"></textarea></div></div>
     <div class="sec-label">Contacts (up to 3)</div>
     <div id="contacts-fields"></div>
@@ -710,8 +709,7 @@ function expandRow(inv){
 function toggleExp(id){expandedId=expandedId===id?null:id;renderTable();}
 function sortBy(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=true;}renderTable();}
 function fmtR(mn,mx){if(!mn&&!mx)return '<span class="range-na">—</span>';if(mn&&mx)return `${mn} – ${mx}`;return mn||mx;}
-function fmtDate(d){if(!d)return '—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
-
+function fmtDate(d){if(!d)return '—';return d;}
 function saveNote(id){
   ss(id,'notes',document.getElementById(`notes-${id}`).value);
   const btn=event.target;btn.textContent='Saved ✓';btn.style.background='var(--green)';
