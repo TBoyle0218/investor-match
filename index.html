@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IPP · Investor CRM</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+:root {
+  --purple:#4A2C6E; --purple-deep:#321B50; --purple-mid:#5C3880; --purple-light:#7B52A0;
+  --purple-pale:#EEE8F5; --white:#FFFFFF; --offwhite:#F8F6FB; --border:#DDD6E8;
+  --border-light:#EEE8F5; --text:#1A0A2E; --text-sec:#4A3C5E; --text-muted:#8A7A9E;
+  --green:#1A7A55; --green-light:#E6F5EE; --red:#B02828; --red-light:#FCEAEA;
+  --amber:#8A5A10; --amber-light:#FDF3E0; --blue:#2456C8; --blue-light:#EBF1FD;
+  --shadow:0 1px 4px rgba(74,44,110,.10),0 4px 16px rgba(74,44,110,.06);
+  --shadow-lg:0 4px 20px rgba(74,44,110,.16),0 12px 40px rgba(74,44,110,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:var(--offwhite);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;}
+.ipp-logo{width:36px;height:36px;flex-shrink:0;}
+#login-screen{min-height:100vh;background:linear-gradient(145deg,var(--purple-deep) 0%,var(--purple) 60%,var(--purple-mid) 100%);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:28px;position:relative;overflow:hidden;}
+#login-screen::before{content:'';position:absolute;top:-80px;right:-80px;width:320px;height:320px;background:rgba(255,255,255,.04);clip-path:polygon(50% 0%,100% 50%,50% 50%,50% 0%);}
+#login-screen::after{content:'';position:absolute;bottom:-60px;left:-60px;width:240px;height:240px;background:rgba(255,255,255,.03);clip-path:polygon(0% 50%,50% 0%,50% 50%);}
+.login-brand{display:flex;flex-direction:column;align-items:center;gap:10px;z-index:1;}
+.login-brand-row{display:flex;align-items:center;gap:12px;}
+.login-wordmark{font-size:26px;font-weight:700;color:#fff;letter-spacing:-.5px;}
+.login-wordmark span{color:rgba(255,255,255,.45);font-weight:300;}
+.login-tagline{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:2.5px;text-transform:uppercase;}
+.login-card{background:rgba(255,255,255,.07);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:36px 40px;width:360px;text-align:center;z-index:1;}
+.login-card h2{font-size:16px;font-weight:600;color:#fff;margin-bottom:6px;}
+.login-card p{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:22px;}
+.login-input{width:100%;padding:12px 16px;background:rgba(0,0,0,.25);border:1px solid rgba(255,255,255,.2);border-radius:8px;color:#fff;font-size:18px;font-family:'IBM Plex Mono',monospace;letter-spacing:6px;text-align:center;outline:none;transition:border-color .2s;}
+.login-input:focus{border-color:rgba(255,255,255,.6);}
+.login-btn{width:100%;margin-top:12px;padding:12px;background:#fff;color:var(--purple-deep);font-weight:700;font-size:13px;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;}
+.login-btn:hover{opacity:.9;}
+.login-error{color:#FF8C8C;font-size:12px;margin-top:10px;min-height:18px;}
+#app{display:none;}
+.header{background:var(--purple-deep);border-bottom:1px solid rgba(255,255,255,.08);padding:0 24px;height:60px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(50,27,80,.3);}
+.header-left{display:flex;align-items:center;gap:14px;}
+.header-wordmark{font-size:17px;font-weight:700;color:#fff;letter-spacing:-.3px;}
+.header-wordmark span{color:rgba(255,255,255,.4);font-weight:300;}
+.h-div{width:1px;height:22px;background:rgba(255,255,255,.12);}
+.header-sub{font-size:11px;color:rgba(255,255,255,.4);letter-spacing:1.5px;text-transform:uppercase;font-weight:500;}
+.header-right{display:flex;align-items:center;gap:10px;}
+.tabs{display:flex;gap:2px;background:rgba(0,0,0,.2);padding:5px;border-radius:8px;}
+.tab-btn{padding:6px 14px;border-radius:5px;border:none;background:transparent;color:rgba(255,255,255,.45);font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap;}
+.tab-btn:hover{color:#fff;}
+.tab-btn.active{background:#fff;color:var(--purple-deep);font-weight:600;}
+.main{padding:24px;max-width:1440px;margin:0 auto;}
+.stats-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#fff;border:1px solid var(--border);border-radius:10px;padding:16px 18px;display:flex;flex-direction:column;gap:4px;box-shadow:var(--shadow);}
+.stat-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);}
+.stat-value{font-size:26px;font-weight:700;color:var(--purple);font-family:'IBM Plex Mono',monospace;line-height:1.1;}
+.stat-sub{font-size:11px;color:var(--text-sec);}
+.deal-banner{background:#fff;border:1px solid var(--border);border-left:4px solid var(--purple);border-radius:10px;padding:13px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;box-shadow:var(--shadow);}
+.deal-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);white-space:nowrap;}
+.deal-select{padding:7px 12px;background:var(--offwhite);border:1px solid var(--border);border-radius:7px;color:var(--text);font-size:13px;font-weight:600;outline:none;cursor:pointer;font-family:'Inter',sans-serif;}
+.deal-pills{display:flex;gap:8px;flex-wrap:wrap;}
+.deal-pill{padding:4px 10px;background:var(--purple-pale);border-radius:20px;font-size:11px;color:var(--purple);}
+.deal-pill strong{font-weight:700;}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.search-wrap{position:relative;flex:1;min-width:200px;}
+.search-wrap svg{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;}
+.search-input{width:100%;padding:9px 12px 9px 34px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:13px;outline:none;font-family:'Inter',sans-serif;transition:border-color .2s;color:var(--text);}
+.search-input:focus{border-color:var(--purple);}
+.filter-select{padding:9px 12px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:13px;outline:none;cursor:pointer;font-family:'Inter',sans-serif;color:var(--text);}
+.btn{padding:9px 16px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:'Inter',sans-serif;white-space:nowrap;}
+.btn-primary{background:var(--purple);color:#fff;}
+.btn-primary:hover{background:var(--purple-mid);}
+.btn-outline{background:#fff;color:var(--purple);border:1px solid var(--purple);}
+.btn-outline:hover{background:var(--purple-pale);}
+.btn-danger{background:var(--red-light);color:var(--red);border:1px solid #F5C0C0;}
+.btn-danger:hover{background:#F9D0D0;}
+.btn-sm{padding:5px 11px;font-size:12px;}
+.table-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:var(--shadow);}
+.crm-table{width:100%;border-collapse:collapse;font-size:13px;}
+.crm-table thead th{background:var(--offwhite);padding:10px 14px;text-align:left;font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;}
+.crm-table thead th:hover{background:var(--purple-pale);}
+.crm-table tbody tr{border-bottom:1px solid var(--border-light);transition:background .1s;cursor:pointer;}
+.crm-table tbody tr:last-child{border-bottom:none;}
+.crm-table tbody tr:hover{background:#FAFAFD;}
+.crm-table tbody tr.expanded{background:#F4F0FA;}
+.crm-table td{padding:11px 14px;vertical-align:middle;}
+.firm-name{font-weight:600;color:var(--purple-deep);font-size:13px;}
+.firm-link{font-size:11px;color:var(--blue);text-decoration:none;}
+.firm-link:hover{text-decoration:underline;}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap;}
+.b-reached{background:var(--green-light);color:var(--green);}
+.b-not{background:var(--border-light);color:var(--text-muted);}
+.b-pass{background:var(--red-light);color:var(--red);}
+.b-intro{background:var(--green-light);color:var(--green);}
+.b-pending{background:var(--amber-light);color:var(--amber);}
+.b-call{background:var(--blue-light);color:var(--blue);}
+.b-mh{background:#ECFDF5;color:#065F46;border:1px solid #A7F3D0;}
+.b-mm{background:var(--amber-light);color:var(--amber);border:1px solid #FDE68A;}
+.b-ml{background:var(--border-light);color:var(--text-muted);}
+.range-cell{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-sec);white-space:nowrap;}
+.range-na{color:var(--text-muted);font-size:11px;font-family:'Inter',sans-serif;}
+.expand-row td{padding:0;border-bottom:2px solid var(--purple-pale);}
+.expand-content{padding:20px 20px 20px 54px;background:#F4F0FA;display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+.expand-section h4{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--purple-light);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.contact-card{margin-bottom:8px;padding:9px 11px;background:#fff;border-radius:7px;border:1px solid var(--border-light);}
+.contact-name{font-weight:600;font-size:12px;color:var(--purple-deep);}
+.contact-title{font-size:11px;color:var(--text-muted);margin-top:1px;}
+.contact-email{font-size:11px;color:var(--blue);font-family:'IBM Plex Mono',monospace;margin-top:3px;}
+.sector-tags{display:flex;flex-wrap:wrap;gap:4px;}
+.sector-tag{padding:2px 7px;background:var(--purple-pale);color:var(--purple);border-radius:4px;font-size:10px;font-weight:500;}
+.inline-select{padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;background:#fff;cursor:pointer;outline:none;}
+.inline-select:focus{border-color:var(--purple);}
+.notes-area{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Inter',sans-serif;resize:vertical;min-height:70px;outline:none;background:#fff;line-height:1.5;color:var(--text);}
+.notes-area:focus{border-color:var(--purple);}
+.save-btn{margin-top:6px;padding:5px 12px;background:var(--purple);color:#fff;border:none;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
+.save-btn:hover{background:var(--purple-mid);}
+.match-score{display:flex;align-items:center;gap:6px;}
+.match-bar{width:38px;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
+.match-fill{height:100%;border-radius:2px;}
+.overlay{position:fixed;inset:0;background:rgba(50,27,80,.55);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;}
+.modal{background:#fff;border-radius:14px;padding:30px 32px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg);}
+.modal-sm{max-width:480px;}
+.modal h2{font-size:18px;font-weight:700;color:var(--purple-deep);margin-bottom:3px;}
+.modal-sub{font-size:13px;color:var(--text-muted);margin-bottom:22px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:13px;}
+.fg3{grid-template-columns:1fr 1fr 1fr;}
+.fg1{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-group label{font-size:10px;font-weight:700;letter-spacing:.6px;text-transform:uppercase;color:var(--text-sec);}
+.form-input{padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;background:#fff;color:var(--text);}
+.form-input:focus{border-color:var(--purple);}
+.sec-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text-muted);padding-top:16px;padding-bottom:10px;border-top:1px solid var(--border-light);margin-top:4px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light);}
+.btn-cancel{padding:9px 18px;background:var(--offwhite);color:var(--text-sec);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;}
+.deals-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;}
+.deal-card{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;box-shadow:var(--shadow);transition:box-shadow .2s;cursor:pointer;}
+.deal-card:hover{box-shadow:var(--shadow-lg);}
+.deal-card.active-deal{border-color:var(--purple);border-top:3px solid var(--purple);}
+.deal-card-header{padding:16px 18px 12px;border-bottom:1px solid var(--border-light);}
+.deal-card-name{font-size:15px;font-weight:700;color:var(--purple-deep);margin-bottom:2px;}
+.deal-card-loc{font-size:12px;color:var(--text-muted);}
+.deal-card-metrics{display:grid;grid-template-columns:1fr 1fr 1fr;padding:12px 18px;gap:8px;}
+.dm .dm-lbl{font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);}
+.dm .dm-val{font-size:16px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--purple);}
+.deal-card-footer{padding:10px 18px;background:var(--offwhite);display:flex;align-items:center;justify-content:space-between;}
+.deal-card-sector{font-size:11px;color:var(--text-muted);}
+.active-chip{padding:3px 9px;background:var(--purple);color:#fff;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;}
+.matcher-layout{display:grid;grid-template-columns:340px 1fr;gap:20px;}
+.matcher-panel{background:#fff;border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:var(--shadow);}
+.matcher-panel h3{font-size:13px;font-weight:700;color:var(--purple-deep);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-light);}
+.match-result-row{display:flex;align-items:center;justify-content:space-between;padding:11px 13px;border-radius:8px;border:1px solid var(--border-light);margin-bottom:6px;cursor:pointer;transition:background .15s;}
+.match-result-row:hover{background:var(--purple-pale);}
+.match-result-name{font-weight:600;font-size:13px;color:var(--purple-deep);}
+.match-reason{font-size:11px;color:var(--text-sec);margin-top:2px;line-height:1.4;}
+.match-hl{font-size:11px;color:var(--purple);margin-top:3px;}
+.spinner{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-muted);font-size:13px;gap:10px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.spin-icon{width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--purple);border-radius:50%;animation:spin .7s linear infinite;}
+.empty-state{text-align:center;padding:40px 20px;color:var(--text-muted);font-size:13px;line-height:1.6;}
+.chevron{transition:transform .2s;display:inline-block;font-size:10px;color:var(--text-muted);}
+.chevron.open{transform:rotate(90deg);}
+.hidden{display:none!important;}
+.active-filter{background:var(--purple)!important;color:#fff!important;border-color:var(--purple)!important;}
+.match-tag{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:600;}
+.reason-row{font-size:11px;color:var(--text-sec);margin-top:3px;display:flex;flex-wrap:wrap;gap:4px;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-brand">
+    <div class="login-brand-row">
+      <svg class="ipp-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,0 50,0 50,50" fill="white"/>
+        <polygon points="50,0 100,0 100,50 50,50" fill="rgba(255,255,255,0.3)"/>
+        <polygon points="0,50 50,50 50,100" fill="rgba(255,255,255,0.3)"/>
+        <polygon points="50,50 100,50 50,100" fill="white"/>
+      </svg>
+      <div class="login-wordmark">Inflection<span>Point</span></div>
+    </div>
+    <div class="login-tagline">Investor Coverage · CRM</div>
+  </div>
+  <div class="login-card">
+    <h2>Secure Access</h2>
+    <p>Enter your access code to continue</p>
+    <input class="login-input" type="password" id="pwd-input" placeholder="· · · · · · · · ·" maxlength="20"/>
+    <button class="login-btn" onclick="tryLogin()">Unlock →</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header class="header">
+    <div class="header-left">
+      <svg class="ipp-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="0,0 50,0 50,50" fill="white"/>
+        <polygon points="50,0 100,0 100,50 50,50" fill="rgba(255,255,255,0.28)"/>
+        <polygon points="0,50 50,50 50,100" fill="rgba(255,255,255,0.28)"/>
+        <polygon points="50,50 100,50 50,100" fill="white"/>
+      </svg>
+      <div class="header-wordmark">Inflection<span>Point</span></div>
+      <div class="h-div"></div>
+      <div class="header-sub">Investor CRM</div>
+    </div>
+    <div class="header-right">
+      <button onclick="manualRefresh()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:5px 11px;border-radius:6px;font-size:11px;font-weight:500;cursor:pointer;font-family:Inter,sans-serif;display:flex;align-items:center;gap:5px" title="Pull latest data from shared database">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('tracker')">Outreach Tracker</button>
+        <button class="tab-btn" onclick="switchTab('deals')">Deals</button>
+        <button class="tab-btn" onclick="switchTab('matcher')">Deal Matcher</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="main">
+    <!-- TRACKER -->
+    <div id="tab-tracker">
+      <div class="stats-bar" id="stats-bar"></div>
+      <div class="deal-banner">
+        <div class="deal-label">Active Deal</div>
+        <select class="deal-select" id="deal-select-tracker" onchange="onDealSwitch()"></select>
+        <div class="deal-pills" id="deal-pills"></div>
+        <div style="margin-left:auto">
+          <button class="btn btn-outline btn-sm" onclick="switchTab('deals')">Manage Deals</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <div class="search-wrap">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" type="text" id="search-input" placeholder="Search firms, sectors, notes…" oninput="renderTable()">
+        </div>
+        <select class="filter-select" id="filter-reached" onchange="renderTable()">
+          <option value="">All Outreach</option>
+          <option value="yes">Reached Out</option>
+          <option value="no">Not Contacted</option>
+        </select>
+        <select class="filter-select" id="filter-response" onchange="renderTable()">
+          <option value="">All Responses</option>
+          <option value="Wants Intro">Wants Intro</option>
+          <option value="Pass">Pass</option>
+          <option value="Call Scheduled">Call Scheduled</option>
+          <option value="Pending">Pending</option>
+          <option value="No Response">No Response</option>
+        </select>
+        <select class="filter-select" id="filter-fee" onchange="renderTable()">
+          <option value="">Fee Agreement</option>
+          <option value="Yes">Signed</option>
+          <option value="Sent">Sent</option>
+          <option value="No">Not Sent</option>
+        </select>
+        <button class="btn btn-primary" onclick="openAddInvModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Investor
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table class="crm-table">
+          <thead><tr>
+            <th style="width:28px"></th>
+            <th onclick="sortBy('name')">Firm ↕</th>
+            <th onclick="sortBy('hq')">HQ</th>
+            <th>Rev Range</th>
+            <th>EBITDA Range</th>
+            <th>Transaction</th>
+            <th onclick="sortBy('reached')">Reached Out</th>
+            <th onclick="sortBy('response')">Response</th>
+            <th>Fee Agreement</th>
+            <th>Match</th>
+            <th>Last Contact</th>
+          </tr></thead>
+          <tbody id="crm-tbody"></tbody>
+        </table>
+      </div>
+      <div id="table-empty" class="empty-state hidden">No investors match your filters.</div>
+    </div>
+
+    <!-- DEALS -->
+    <div id="tab-deals" class="hidden">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
+        <div>
+          <h2 style="font-size:20px;font-weight:700;color:var(--purple-deep)">Deal Library</h2>
+          <p style="font-size:13px;color:var(--text-muted);margin-top:3px">Each deal tracks its own per-investor outreach status. Switch deals in the Tracker banner.</p>
+        </div>
+        <button class="btn btn-primary" onclick="openAddDealModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Deal
+        </button>
+      </div>
+      <div class="deals-grid" id="deals-grid"></div>
+    </div>
+
+    <!-- MATCHER -->
+    <div id="tab-matcher" class="hidden">
+      <div class="matcher-layout">
+        <div>
+          <div class="matcher-panel">
+            <h3>Deal to Match</h3>
+            <div class="form-group" style="margin-bottom:14px">
+              <label>Select Deal</label>
+              <select class="form-input" id="matcher-deal-sel" onchange="populateMatcherFromDeal()"></select>
+            </div>
+            <!-- read-only summary -->
+            <div id="matcher-summary" style="background:var(--purple-pale);border-radius:8px;padding:12px 14px;margin-bottom:14px;display:none">
+              <div style="font-size:13px;font-weight:700;color:var(--purple-deep);margin-bottom:6px" id="ms-name"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
+                <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted)">Revenue</div><div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--purple)" id="ms-rev">—</div></div>
+                <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted)">EBITDA</div><div style="font-size:13px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:var(--purple)" id="ms-ebitda">—</div></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-sec)" id="ms-sector"></div>
+            </div>
+            <div style="margin-bottom:14px">
+              <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px">Scoring Weights</div>
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-sec)">
+                  Revenue fit <span id="w-rev-val" style="font-family:'IBM Plex Mono',monospace;color:var(--purple);font-size:11px">35</span>
+                  <input type="range" id="w-rev" min="0" max="50" value="35" oninput="document.getElementById('w-rev-val').textContent=this.value" style="width:120px;accent-color:var(--purple)">
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-sec)">
+                  EBITDA fit <span id="w-ebitda-val" style="font-family:'IBM Plex Mono',monospace;color:var(--purple);font-size:11px">30</span>
+                  <input type="range" id="w-ebitda" min="0" max="50" value="30" oninput="document.getElementById('w-ebitda-val').textContent=this.value" style="width:120px;accent-color:var(--purple)">
+                </label>
+                <label style="display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--text-sec)">
+                  Sector / keyword <span id="w-sector-val" style="font-family:'IBM Plex Mono',monospace;color:var(--purple);font-size:11px">35</span>
+                  <input type="range" id="w-sector" min="0" max="50" value="35" oninput="document.getElementById('w-sector-val').textContent=this.value" style="width:120px;accent-color:var(--purple)">
+                </label>
+              </div>
+            </div>
+            <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="runMatcher()">Run Match →</button>
+            <div style="font-size:11px;color:var(--text-muted);margin-top:8px;text-align:center;line-height:1.4">Scores all <span id="inv-count-label">—</span> investors against this deal using revenue range, EBITDA range, sector keywords, and portfolio relevance.</div>
+          </div>
+        </div>
+        <div class="matcher-panel" style="overflow-y:auto;max-height:calc(100vh - 120px)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border-light)">
+            <h3 style="margin-bottom:0;padding-bottom:0;border-bottom:none">Match Results</h3>
+            <div id="match-filter-row" style="display:none;gap:6px;display:flex">
+              <button class="btn btn-outline btn-sm match-filter-btn active-filter" onclick="filterMatchResults('all',this)">All</button>
+              <button class="btn btn-outline btn-sm match-filter-btn" onclick="filterMatchResults('high',this)">High</button>
+              <button class="btn btn-outline btn-sm match-filter-btn" onclick="filterMatchResults('med',this)">Med</button>
+              <button class="btn btn-outline btn-sm match-filter-btn" onclick="filterMatchResults('low',this)">Low</button>
+            </div>
+          </div>
+          <div id="match-results"><div class="empty-state">Select a deal and click <strong>Run Match</strong> to score all investors.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INVESTOR MODAL -->
+<div class="overlay hidden" id="inv-overlay">
+  <div class="modal">
+    <h2 id="inv-title">Add Investor</h2>
+    <div class="modal-sub" id="inv-sub">Fill in what you have — everything can be updated later.</div>
+    <div class="sec-label" style="padding-top:0;border-top:none;margin-top:0">Firm Info</div>
+    <div class="form-grid">
+      <div class="form-group"><label>Firm Name *</label><input class="form-input" id="f-name" placeholder="e.g. Audax Private Equity"></div>
+      <div class="form-group"><label>Headquarters</label><input class="form-input" id="f-hq" placeholder="e.g. Boston, MA"></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Website</label><input class="form-input" id="f-website" placeholder="e.g. audaxprivateequity.com"></div>
+      <div class="form-group"><label>AUM / Firm Notes</label><input class="form-input" id="f-aum" placeholder="e.g. $19.5B AUM, Founded 1999"></div>
+    </div>
+    <div class="sec-label">Investment Criteria</div>
+    <div class="form-grid fg3">
+      <div class="form-group"><label>Rev Min</label><input class="form-input" id="f-rmin" placeholder="$20M"></div>
+      <div class="form-group"><label>Rev Max</label><input class="form-input" id="f-rmax" placeholder="$500M"></div>
+      <div class="form-group"><label>Size Tier</label><select class="form-input" id="f-rsize"><option value="">—</option><option>Low</option><option>Med</option><option>High</option></select></div>
+    </div>
+    <div class="form-grid fg3">
+      <div class="form-group"><label>EBITDA Min</label><input class="form-input" id="f-emin" placeholder="$5M"></div>
+      <div class="form-group"><label>EBITDA Max</label><input class="form-input" id="f-emax" placeholder="$35M"></div>
+      <div class="form-group"><label>Transaction</label><select class="form-input" id="f-maj"><option>Majority</option><option>Minority</option><option>Both</option></select></div>
+    </div>
+    <div class="form-grid fg1"><div class="form-group"><label>Sectors of Interest</label><input class="form-input" id="f-sectors" placeholder="e.g. Business Services, Healthcare, Industrial"></div></div>
+    <div class="form-grid fg1"><div class="form-group"><label>Portfolio Companies / Add-on Platforms</label><textarea class="form-input" id="f-portco" style="min-height:60px;resize:vertical" placeholder="Notable portfolio companies or active add-on platforms"></textarea></div></div>
+    <div class="form-grid fg1"><div class="form-group"><label>Industries Actively Pursuing</label><input class="form-input" id="f-industries" placeholder="e.g. Commercial Cleaning, Facility Services"></div></div>
+    <div class="sec-label">Outreach Status <span style="font-weight:400;font-size:9px;margin-left:6px;background:var(--purple-pale);color:var(--purple);padding:2px 6px;border-radius:3px" id="inv-modal-deal-name"></span></div>
+    <div class="form-grid">
+      <div class="form-group"><label>Reached Out?</label><select class="form-input" id="f-reached"><option value="no">No</option><option value="yes">Yes</option></select></div>
+      <div class="form-group"><label>Response</label><select class="form-input" id="f-response"><option>Pending</option><option>No Response</option><option>Wants Intro</option><option>Pass</option><option>Call Scheduled</option></select></div>
+    </div>
+    <div class="form-grid">
+      <div class="form-group"><label>Fee Agreement</label><select class="form-input" id="f-fee"><option>No</option><option>Sent</option><option>Yes</option></select></div>
+      <div class="form-group"><label>Last Contact Date</label><input class="form-input" type="date" id="f-date"></div>
+    </div>
+    <div class="form-grid fg1"><div class="form-group"><label>Deal Notes</label><textarea class="form-input" id="f-notes" style="min-height:75px;resize:vertical" placeholder="Deal fit notes, conversation history, next steps…"></textarea></div></div>
+    <div class="sec-label">Contacts (up to 3)</div>
+    <div id="contacts-fields"></div>
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeInvModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveInvestor()">Save Investor</button>
+    </div>
+  </div>
+</div>
+
+<!-- DEAL MODAL -->
+<div class="overlay hidden" id="deal-overlay">
+  <div class="modal" style="max-width:560px">
+    <h2 id="deal-title">Add Deal</h2>
+    <div class="modal-sub">Paste teaser text to auto-fill, or fill the fields manually.</div>
+
+    <!-- PASTE ZONE -->
+    <div id="paste-zone" style="margin-bottom:16px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:6px">Paste Teaser Text (optional)</div>
+      <textarea id="d-paste" class="form-input" style="min-height:90px;resize:vertical;line-height:1.5;font-size:12px" placeholder="Paste any text from the deal summary PDF — company name, revenue, EBITDA, location, highlights. Click Parse → to extract the fields automatically."></textarea>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:8px">
+        <button class="btn btn-outline btn-sm" onclick="parsePaste()" style="flex-shrink:0">Parse → Auto-fill</button>
+        <span id="parse-msg" style="font-size:11px;color:var(--green);min-height:16px"></span>
+      </div>
+    </div>
+
+    <div style="border-top:1px solid var(--border-light);padding-top:14px;margin-bottom:13px">
+      <div style="font-size:10px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px">Deal Fields</div>
+      <div class="form-grid fg1" style="margin-bottom:11px"><div class="form-group"><label>Company Name *</label><input class="form-input" id="d-name" placeholder="e.g. McNevin Cleaning Specialists"></div></div>
+      <div class="form-grid">
+        <div class="form-group"><label>Location</label><input class="form-input" id="d-loc" placeholder="e.g. Burlingame, CA"></div>
+        <div class="form-group"><label>Website</label><input class="form-input" id="d-web" placeholder="e.g. mcnevincleaning.com"></div>
+      </div>
+      <div class="form-grid fg3">
+        <div class="form-group"><label>Revenue</label><input class="form-input" id="d-rev" placeholder="$2.5M"></div>
+        <div class="form-group"><label>EBITDA</label><input class="form-input" id="d-ebitda" placeholder="$600K"></div>
+        <div class="form-group"><label>EBITDA Margin</label><input class="form-input" id="d-margin" placeholder="24%"></div>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label>Sector</label><input class="form-input" id="d-sector" placeholder="e.g. Commercial Cleaning"></div>
+        <div class="form-group"><label>Transaction Type</label><select class="form-input" id="d-txn"><option>Open to Offers</option><option>Full Sale</option><option>Majority Recap</option><option>Minority Stake</option></select></div>
+      </div>
+      <div class="form-grid fg1"><div class="form-group"><label>Key Highlights</label><textarea class="form-input" id="d-highlights" style="min-height:90px;resize:vertical" placeholder="Investment highlights, recurring revenue, client names, growth thesis…"></textarea></div></div>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-cancel" onclick="closeDealModal()">Cancel</button>
+      <button class="btn btn-danger btn-sm hidden" id="del-deal-btn" onclick="deleteDeal()" style="margin-right:auto">Delete Deal</button>
+      <button class="btn btn-primary" onclick="saveDeal()">Save Deal</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// AUTH
+document.getElementById('pwd-input').addEventListener('keydown',e=>{if(e.key==='Enter')tryLogin();});
+function tryLogin(){
+  if(document.getElementById('pwd-input').value==='245125280'){
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    init();
+  } else {
+    document.getElementById('login-error').textContent='Incorrect access code.';
+    document.getElementById('pwd-input').value='';
+  }
+}
+
+// ── SUPABASE CONFIG ──
+const SB_URL = 'https://lwoulozizgintdbtbzka.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imx3b3Vsb3ppemdpbnRkYnRiemthIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI2NjY2MDAsImV4cCI6MjA5ODI0MjYwMH0.Nf-dwJsQ1gJdUmWTyeRJ8tl0Ku_Ob8b2zmWKWSz8NQM';
+const SB_HEADERS = {'Content-Type':'application/json','apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Prefer':'resolution=merge-duplicates'};
+
+async function sbGet(table){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?select=*`,{headers:{...SB_HEADERS,'Prefer':''}});
+  if(!r.ok) throw new Error(`${table} fetch failed: ${r.status}`);
+  return r.json();
+}
+async function sbUpsert(table,row){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}`,{method:'POST',headers:SB_HEADERS,body:JSON.stringify(row)});
+  if(!r.ok){const t=await r.text();throw new Error(`${table} upsert failed: ${t}`);}
+}
+async function sbDelete(table,id){
+  const r=await fetch(`${SB_URL}/rest/v1/${table}?id=eq.${id}`,{method:'DELETE',headers:{...SB_HEADERS,'Prefer':''}});
+  if(!r.ok) throw new Error(`${table} delete failed`);
+}
+
+function showSyncStatus(msg,ok=true){
+  let el=document.getElementById('sync-status');
+  if(!el){
+    el=document.createElement('div');el.id='sync-status';
+    Object.assign(el.style,{position:'fixed',bottom:'16px',right:'16px',padding:'8px 14px',borderRadius:'8px',fontSize:'12px',fontWeight:'600',fontFamily:'Inter,sans-serif',zIndex:'9999',transition:'opacity .4s',boxShadow:'0 2px 12px rgba(50,27,80,.2)'});
+    document.body.appendChild(el);
+  }
+  el.textContent=msg;
+  el.style.background=ok?'#E6F5EE':'#FCEAEA';
+  el.style.color=ok?'#1A7A55':'#B02828';
+  el.style.opacity='1';
+  clearTimeout(el._t);
+  el._t=setTimeout(()=>{el.style.opacity='0';},2500);
+}
+
+// STATE
+let investors=[],deals=[],activeDealId=null,editInvId=null,editDealId=null;
+let sortCol='name',sortAsc=true,expandedId=null;
+let _syncPending=false;
+const uid=()=>Math.random().toString(36).substr(2,9);
+
+// Write to localStorage immediately (fast) + debounce Supabase push
+function persist(){
+  localStorage.setItem('ipp_inv3',JSON.stringify(investors));
+  localStorage.setItem('ipp_deals3',JSON.stringify(deals));
+  localStorage.setItem('ipp_active3',activeDealId||'');
+  schedulePush();
+}
+
+let _pushTimer=null;
+function schedulePush(){
+  clearTimeout(_pushTimer);
+  _pushTimer=setTimeout(pushToSupabase,800);
+}
+
+async function pushToSupabase(){
+  try{
+    // Upsert all investors
+    const invRows=investors.map(i=>({id:i.id,data:i,updated_at:new Date().toISOString()}));
+    if(invRows.length){
+      const r=await fetch(`${SB_URL}/rest/v1/investors`,{method:'POST',headers:SB_HEADERS,body:JSON.stringify(invRows)});
+      if(!r.ok){const t=await r.text();throw new Error(t);}
+    }
+    // Upsert all deals
+    const dealRows=deals.map(d=>({id:d.id,data:d,updated_at:new Date().toISOString()}));
+    if(dealRows.length){
+      const r=await fetch(`${SB_URL}/rest/v1/deals`,{method:'POST',headers:SB_HEADERS,body:JSON.stringify(dealRows)});
+      if(!r.ok){const t=await r.text();throw new Error(t);}
+    }
+    showSyncStatus('✓ Synced');
+  }catch(e){
+    showSyncStatus('⚠ Sync error — saved locally',false);
+    console.error('Supabase push error:',e);
+  }
+}
+
+async function init(){
+  // Show loading state
+  document.getElementById('crm-tbody').innerHTML='<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-muted);font-size:13px">Loading from database…</td></tr>';
+
+  try{
+    // Try Supabase first
+    const [invRows,dealRows]=await Promise.all([sbGet('investors'),sbGet('deals')]);
+
+    if(invRows.length||dealRows.length){
+      investors=invRows.map(r=>r.data).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      deals=dealRows.map(r=>r.data);
+    } else {
+      // First time — seed defaults and push up
+      investors=defaultInvestors();
+      deals=defaultDeals();
+      showSyncStatus('Seeding database…');
+      await pushToSupabase();
+    }
+    showSyncStatus('✓ Connected to shared database');
+  }catch(e){
+    // Supabase unavailable — fall back to localStorage
+    console.warn('Supabase unavailable, using localStorage:',e);
+    const si=localStorage.getItem('ipp_inv3');
+    const sd=localStorage.getItem('ipp_deals3');
+    investors=si?JSON.parse(si):defaultInvestors();
+    deals=sd?JSON.parse(sd):defaultDeals();
+    showSyncStatus('⚠ Offline — using local data',false);
+  }
+
+  const sa=localStorage.getItem('ipp_active3');
+  activeDealId=(sa&&deals.find(d=>d.id===sa))?sa:(deals[0]?.id||null);
+  localStorage.setItem('ipp_inv3',JSON.stringify(investors));
+  localStorage.setItem('ipp_deals3',JSON.stringify(deals));
+  refreshAll();
+}
+
+function refreshAll(){
+  fillDealSelectors();
+  renderStats();
+  renderTable();
+  renderDealsGrid();
+  fillMatcherDeal();
+}
+
+// DEAL SELECTORS
+function fillDealSelectors(){
+  const opts=deals.map(d=>`<option value="${d.id}"${d.id===activeDealId?' selected':''}>${d.name}</option>`).join('');
+  document.getElementById('deal-select-tracker').innerHTML=opts;
+  document.getElementById('matcher-deal-sel').innerHTML=opts;
+  updateDealPills();
+}
+function updateDealPills(){
+  const d=deals.find(x=>x.id===activeDealId);
+  if(!d){document.getElementById('deal-pills').innerHTML='';return;}
+  document.getElementById('deal-pills').innerHTML=
+    `<span class="deal-pill"><strong>Rev:</strong> ${d.rev||'—'}</span>
+     <span class="deal-pill"><strong>EBITDA:</strong> ${d.ebitda||'—'}</span>
+     ${d.margin?`<span class="deal-pill"><strong>Margin:</strong> ${d.margin}</span>`:''}
+     <span class="deal-pill">${d.sector||'—'}</span>
+     <span class="deal-pill">${d.txn||'—'}</span>`;
+}
+function onDealSwitch(){
+  activeDealId=document.getElementById('deal-select-tracker').value;
+  persist(); updateDealPills(); renderStats(); renderTable();
+}
+
+// PER-DEAL STATUS
+function gs(inv,f){
+  const ds=(inv.dealStatus||{})[activeDealId]||{};
+  if(f==='reached') return ds.reached!==undefined?ds.reached:(inv.reached||'no');
+  if(f==='response') return ds.response||(inv.response||'Pending');
+  if(f==='fee') return ds.fee||(inv.fee||'No');
+  if(f==='lastContact') return ds.lastContact||(inv.lastContact||'');
+  if(f==='notes') return ds.notes!==undefined?ds.notes:(inv.notes||'');
+  return '';
+}
+function ss(invId,field,val){
+  const inv=investors.find(i=>i.id===invId);
+  if(!inv)return;
+  if(!inv.dealStatus)inv.dealStatus={};
+  if(!inv.dealStatus[activeDealId])inv.dealStatus[activeDealId]={};
+  inv.dealStatus[activeDealId][field]=val;
+  persist(); renderStats();
+}
+
+// STATS
+function renderStats(){
+  const t=investors.length;
+  const r=investors.filter(i=>gs(i,'reached')==='yes').length;
+  const wi=investors.filter(i=>gs(i,'response')==='Wants Intro').length;
+  const p=investors.filter(i=>gs(i,'response')==='Pass').length;
+  const fs=investors.filter(i=>gs(i,'fee')==='Yes').length;
+  document.getElementById('stats-bar').innerHTML=`
+    <div class="stat-card"><div class="stat-label">Total Investors</div><div class="stat-value">${t}</div><div class="stat-sub">in database</div></div>
+    <div class="stat-card"><div class="stat-label">Reached Out</div><div class="stat-value">${r}</div><div class="stat-sub">${t-r} not contacted</div></div>
+    <div class="stat-card"><div class="stat-label">Wants Intro</div><div class="stat-value" style="color:var(--green)">${wi}</div><div class="stat-sub">active interest</div></div>
+    <div class="stat-card"><div class="stat-label">Passed</div><div class="stat-value" style="color:var(--red)">${p}</div><div class="stat-sub">declined</div></div>
+    <div class="stat-card"><div class="stat-label">Fee Signed</div><div class="stat-value" style="color:var(--purple)">${fs}</div><div class="stat-sub">fee agreements</div></div>`;
+}
+
+// TABLE
+function renderTable(){
+  const q=document.getElementById('search-input').value.toLowerCase();
+  const fR=document.getElementById('filter-reached').value;
+  const fRsp=document.getElementById('filter-response').value;
+  const fF=document.getElementById('filter-fee').value;
+  let rows=investors.filter(inv=>{
+    if(q&&!`${inv.name} ${inv.hq} ${inv.sectors} ${gs(inv,'notes')} ${inv.portco} ${inv.industries}`.toLowerCase().includes(q))return false;
+    if(fR&&gs(inv,'reached')!==fR)return false;
+    if(fRsp&&gs(inv,'response')!==fRsp)return false;
+    if(fF&&gs(inv,'fee')!==fF)return false;
+    return true;
+  });
+  rows.sort((a,b)=>{
+    const av=sortCol==='reached'?gs(a,'reached'):sortCol==='response'?gs(a,'response'):(a[sortCol]||'');
+    const bv=sortCol==='reached'?gs(b,'reached'):sortCol==='response'?gs(b,'response'):(b[sortCol]||'');
+    return sortAsc?av.localeCompare(bv):bv.localeCompare(av);
+  });
+  const tbody=document.getElementById('crm-tbody');
+  document.getElementById('table-empty').classList.toggle('hidden',!!rows.length);
+  tbody.innerHTML=rows.map(inv=>{
+    const reached=gs(inv,'reached'),response=gs(inv,'response'),fee=gs(inv,'fee'),lastC=gs(inv,'lastContact');
+    const m=computeMatch(inv);
+    const isExp=expandedId===inv.id;
+    return `<tr onclick="toggleExp('${inv.id}')" class="${isExp?'expanded':''}">
+      <td><span class="chevron ${isExp?'open':''}">▶</span></td>
+      <td><div class="firm-name">${inv.name}</div>${inv.website?`<a class="firm-link" href="https://${inv.website}" target="_blank" onclick="event.stopPropagation()">${inv.website}</a>`:''}</td>
+      <td><span style="font-size:12px;color:var(--text-sec)">${inv.hq||'<span class=range-na>—</span>'}</span></td>
+      <td class="range-cell">${fmtR(inv.revMin,inv.revMax)}</td>
+      <td class="range-cell">${fmtR(inv.ebitdaMin,inv.ebitdaMax)}</td>
+      <td><span style="font-size:12px;color:var(--text-sec)">${inv.majority||'—'}</span></td>
+      <td><select class="inline-select" onclick="event.stopPropagation()" onchange="ss('${inv.id}','reached',this.value)">
+        <option value="no" ${reached==='no'?'selected':''}>— No</option>
+        <option value="yes" ${reached==='yes'?'selected':''}>✓ Yes</option>
+      </select></td>
+      <td><select class="inline-select" onclick="event.stopPropagation()" onchange="ss('${inv.id}','response',this.value)">
+        ${['Pending','No Response','Wants Intro','Pass','Call Scheduled'].map(r=>`<option ${response===r?'selected':''}>${r}</option>`).join('')}
+      </select></td>
+      <td><select class="inline-select" onclick="event.stopPropagation()" onchange="ss('${inv.id}','fee',this.value)">
+        ${['No','Sent','Yes'].map(f=>`<option ${fee===f?'selected':''}>${f}</option>`).join('')}
+      </select></td>
+      <td><div class="match-score"><div class="match-bar"><div class="match-fill" style="width:${m.pct}%;background:${m.color}"></div></div><span class="badge ${m.cls}">${m.label}</span></div></td>
+      <td style="font-size:12px;color:var(--text-sec);white-space:nowrap">${fmtDate(lastC)}</td>
+    </tr>${isExp?expandRow(inv):''}`;
+  }).join('');
+}
+
+function expandRow(inv){
+  const contacts=(inv.contacts||[]).filter(c=>c.name);
+  const notes=gs(inv,'notes');
+  const dealName=deals.find(d=>d.id===activeDealId)?.name||'Active Deal';
+  return `<tr class="expand-row"><td colspan="11"><div class="expand-content">
+    <div class="expand-section"><h4>Contacts</h4>
+      ${contacts.length?contacts.map(c=>`<div class="contact-card">
+        <div class="contact-name">${c.name}</div>
+        ${c.title?`<div class="contact-title">${c.title}</div>`:''}
+        ${c.email?`<div class="contact-email">${c.email}</div>`:''}
+        ${c.phone?`<div style="font-size:11px;color:var(--text-muted);margin-top:2px">${c.phone}</div>`:''}
+      </div>`).join(''):'<div style="font-size:12px;color:var(--text-muted)">No contacts added.</div>'}
+    </div>
+    <div class="expand-section"><h4>Criteria & Portfolio</h4>
+      <div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:5px">Sectors</div>
+      <div class="sector-tags" style="margin-bottom:12px">${(inv.sectors||'').split(',').filter(s=>s.trim()).map(s=>`<span class="sector-tag">${s.trim()}</span>`).join('')||'<span style="font-size:12px;color:var(--text-muted)">Not specified</span>'}</div>
+      ${inv.portco?`<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Portfolio / Add-ons</div><div style="font-size:12px;color:var(--text-sec);line-height:1.5;margin-bottom:10px">${inv.portco}</div>`:''}
+      ${inv.industries?`<div style="font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:4px">Industries Pursuing</div><div style="font-size:12px;color:var(--text-sec)">${inv.industries}</div>`:''}
+    </div>
+    <div class="expand-section">
+      <h4>Deal Notes <span style="font-weight:400;text-transform:none;letter-spacing:0;font-size:9px;background:var(--purple-pale);color:var(--purple);padding:1px 5px;border-radius:3px;margin-left:4px">${dealName}</span></h4>
+      <textarea class="notes-area" id="notes-${inv.id}" onclick="event.stopPropagation()">${notes}</textarea>
+      <button class="save-btn" onclick="event.stopPropagation();saveNote('${inv.id}')">Save Notes</button>
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openEditInvModal('${inv.id}')">Edit Profile</button>
+      </div>
+    </div>
+  </div></td></tr>`;
+}
+
+function toggleExp(id){expandedId=expandedId===id?null:id;renderTable();}
+function sortBy(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=true;}renderTable();}
+function fmtR(mn,mx){if(!mn&&!mx)return '<span class="range-na">—</span>';if(mn&&mx)return `${mn} – ${mx}`;return mn||mx;}
+function fmtDate(d){if(!d)return '—';const dt=new Date(d+'T00:00:00');return dt.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});}
+
+function saveNote(id){
+  ss(id,'notes',document.getElementById(`notes-${id}`).value);
+  const btn=event.target;btn.textContent='Saved ✓';btn.style.background='var(--green)';
+  setTimeout(()=>{btn.textContent='Save Notes';btn.style.background='';},1500);
+}
+
+function computeMatch(inv){
+  const d=deals.find(x=>x.id===activeDealId);
+  if(!d)return{pct:10,label:'—',cls:'b-ml',color:'#CBD5E0'};
+  const text=`${inv.sectors} ${gs(inv,'notes')} ${inv.portco} ${inv.industries} ${inv.notesFirm||''}`.toLowerCase();
+  const dealText=`${d.sector} ${d.highlights}`.toLowerCase();
+  let score=0;
+  const rv=parseN(d.rev),ev=parseN(d.ebitda);
+  if(!parseN(inv.revMin)||parseN(inv.revMin)<=rv)score+=20;
+  if(!parseN(inv.revMax)||parseN(inv.revMax)>=rv)score+=20;
+  if(!parseN(inv.ebitdaMin)||parseN(inv.ebitdaMin)<=ev)score+=15;
+  if(!parseN(inv.ebitdaMax)||parseN(inv.ebitdaMax)>=ev)score+=10;
+  dealText.split(/\W+/).filter(w=>w.length>4).forEach(w=>{if(text.includes(w))score+=4;});
+  score=Math.min(score,100);
+  if(score>=65)return{pct:score,label:'High',cls:'b-mh',color:'#10B981'};
+  if(score>=35)return{pct:score,label:'Med',cls:'b-mm',color:'#F59E0B'};
+  return{pct:Math.max(score,10),label:'Low',cls:'b-ml',color:'#CBD5E0'};
+}
+function parseN(str){
+  if(!str)return null;const n=parseFloat(str.replace(/[^0-9.]/g,''));if(isNaN(n))return null;
+  if(/B/i.test(str))return n*1000;if(/M/i.test(str))return n;if(/K/i.test(str))return n/1000;return n;
+}
+
+// DEALS GRID
+function renderDealsGrid(){
+  const g=document.getElementById('deals-grid');
+  if(!deals.length){g.innerHTML='<div class="empty-state">No deals yet. Click <strong>Add Deal</strong> to get started.</div>';return;}
+  g.innerHTML=deals.map(d=>`
+    <div class="deal-card ${d.id===activeDealId?'active-deal':''}" onclick="setActiveDeal('${d.id}')">
+      <div class="deal-card-header">
+        <div class="deal-card-name">${d.name}</div>
+        <div class="deal-card-loc">${d.loc||''}${d.web?` · <a href="https://${d.web}" target="_blank" onclick="event.stopPropagation()" style="color:var(--blue);font-size:11px">${d.web}</a>`:''}</div>
+      </div>
+      <div class="deal-card-metrics">
+        <div class="dm"><div class="dm-lbl">Revenue</div><div class="dm-val">${d.rev||'—'}</div></div>
+        <div class="dm"><div class="dm-lbl">EBITDA</div><div class="dm-val">${d.ebitda||'—'}</div></div>
+        <div class="dm"><div class="dm-lbl">Margin</div><div class="dm-val" style="font-size:14px">${d.margin||'—'}</div></div>
+      </div>
+      <div class="deal-card-footer">
+        <span class="deal-card-sector">${d.sector||''} · ${d.txn||''}</span>
+        <div style="display:flex;gap:6px;align-items:center">
+          ${d.id===activeDealId?'<span class="active-chip">Active</span>':''}
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();openEditDealModal('${d.id}')">Edit</button>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+function setActiveDeal(id){
+  activeDealId=id;
+  document.getElementById('deal-select-tracker').value=id;
+  document.getElementById('matcher-deal-sel').value=id;
+  persist(); updateDealPills(); renderStats(); renderTable(); renderDealsGrid(); fillMatcherDeal();
+}
+
+// DEAL MODAL
+function openAddDealModal(){
+  editDealId=null;
+  document.getElementById('deal-title').textContent='Add Deal';
+  ['d-name','d-loc','d-web','d-rev','d-ebitda','d-margin','d-sector','d-highlights','d-paste'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('parse-msg').textContent='';
+  document.getElementById('d-txn').value='Open to Offers';
+  document.getElementById('del-deal-btn').classList.add('hidden');
+  document.getElementById('deal-overlay').classList.remove('hidden');
+}
+function openEditDealModal(id){
+  editDealId=id;const d=deals.find(x=>x.id===id);
+  document.getElementById('deal-title').textContent=`Edit — ${d.name}`;
+  document.getElementById('d-paste').value='';
+  document.getElementById('parse-msg').textContent='';
+  document.getElementById('d-name').value=d.name||'';
+  document.getElementById('d-loc').value=d.loc||'';
+  document.getElementById('d-web').value=d.web||'';
+  document.getElementById('d-rev').value=d.rev||'';
+  document.getElementById('d-ebitda').value=d.ebitda||'';
+  document.getElementById('d-margin').value=d.margin||'';
+  document.getElementById('d-sector').value=d.sector||'';
+  document.getElementById('d-txn').value=d.txn||'Open to Offers';
+  document.getElementById('d-highlights').value=d.highlights||'';
+  document.getElementById('del-deal-btn').classList.remove('hidden');
+  document.getElementById('deal-overlay').classList.remove('hidden');
+}
+function saveDeal(){
+  const name=document.getElementById('d-name').value.trim();
+  if(!name){alert('Company name is required.');return;}
+  const data={name,loc:document.getElementById('d-loc').value.trim(),web:document.getElementById('d-web').value.trim(),rev:document.getElementById('d-rev').value.trim(),ebitda:document.getElementById('d-ebitda').value.trim(),margin:document.getElementById('d-margin').value.trim(),sector:document.getElementById('d-sector').value.trim(),txn:document.getElementById('d-txn').value,highlights:document.getElementById('d-highlights').value.trim()};
+  if(editDealId){const idx=deals.findIndex(d=>d.id===editDealId);deals[idx]={...deals[idx],...data};}
+  else{const nd={id:uid(),...data};deals.push(nd);if(!activeDealId)activeDealId=nd.id;}
+  persist();closeDealModal();fillDealSelectors();renderDealsGrid();fillMatcherDeal();
+}
+async function deleteDeal(){
+  if(!editDealId||deals.length<=1){alert('Cannot delete the only deal.');return;}
+  if(!confirm('Delete this deal and its outreach data?'))return;
+  try{await sbDelete('deals',editDealId);}catch(e){console.warn('Supabase delete failed',e);}
+  deals=deals.filter(d=>d.id!==editDealId);
+  if(activeDealId===editDealId)activeDealId=deals[0]?.id||null;
+  persist();closeDealModal();fillDealSelectors();renderDealsGrid();renderStats();renderTable();
+}
+function closeDealModal(){document.getElementById('deal-overlay').classList.add('hidden');}
+
+// MATCHER
+function fillMatcherDeal(){
+  document.getElementById('matcher-deal-sel').value=activeDealId||'';
+  populateMatcherFromDeal();
+}
+function populateMatcherFromDeal(){
+  const id=document.getElementById('matcher-deal-sel').value;
+  const d=deals.find(x=>x.id===id);
+  const sum=document.getElementById('matcher-summary');
+  document.getElementById('inv-count-label').textContent=investors.length;
+  if(!d){sum.style.display='none';return;}
+  sum.style.display='block';
+  document.getElementById('ms-name').textContent=d.name;
+  document.getElementById('ms-rev').textContent=d.rev||'—';
+  document.getElementById('ms-ebitda').textContent=d.ebitda||'—';
+  document.getElementById('ms-sector').textContent=[d.sector,d.txn].filter(Boolean).join(' · ');
+}
+
+let allMatchResults=[];
+function runMatcher(){
+  const id=document.getElementById('matcher-deal-sel').value;
+  const d=deals.find(x=>x.id===id);
+  if(!d){document.getElementById('match-results').innerHTML='<div class="empty-state">Please select a deal first.</div>';return;}
+
+  const wRev=parseInt(document.getElementById('w-rev').value)||35;
+  const wEbitda=parseInt(document.getElementById('w-ebitda').value)||30;
+  const wSector=parseInt(document.getElementById('w-sector').value)||35;
+  const total=wRev+wEbitda+wSector||100;
+
+  const dealRev=parseN(d.rev);
+  const dealEbitda=parseN(d.ebitda);
+  const dealText=`${d.sector||''} ${d.highlights||''} ${d.name||''}`.toLowerCase();
+  const dealWords=dealText.split(/\W+/).filter(w=>w.length>4);
+
+  // sector keyword buckets
+  const sectorMap={
+    'cleaning':['cleaning','janitorial','custodial','sanitation','housekeeping','maid','carpet','flooring','upholstery'],
+    'facility services':['facility','facilities','property services','building services','maintenance','property management'],
+    'business services':['business services','commercial services','outsourced services','b2b services'],
+    'industrial services':['industrial','environmental','waste','remediation','restoration'],
+    'hvac':['hvac','plumbing','mechanical','electrical','heating','cooling'],
+    'landscaping':['landscaping','lawn','grounds','turf','horticulture'],
+    'pest control':['pest','rodent','termite','insect','exterminator'],
+    'roofing':['roofing','exterior','siding','gutters'],
+    'healthcare':['healthcare','medical','dental','clinical'],
+    'manufacturing':['manufacturing','fabrication','production','assembly'],
+  };
+
+  function sectorScore(inv){
+    const invText=`${inv.sectors||''} ${inv.portco||''} ${inv.industries||''} ${inv.notesFirm||''} ${gs(inv,'notes')||''}`.toLowerCase();
+    let hits=0,reasons=[];
+    // direct keyword match
+    dealWords.forEach(w=>{if(invText.includes(w))hits++;});
+    // bucket match
+    for(const[bucket,kws]of Object.entries(sectorMap)){
+      const dealHasBucket=kws.some(k=>dealText.includes(k));
+      const invHasBucket=kws.some(k=>invText.includes(k));
+      if(dealHasBucket&&invHasBucket){hits+=4;reasons.push(bucket);}
+    }
+    return{score:Math.min(hits*3,100),reasons};
+  }
+
+  function revScore(inv){
+    if(!dealRev)return{score:50,ok:null};
+    const mn=parseN(inv.revMin),mx=parseN(inv.revMax);
+    if(!mn&&!mx)return{score:40,ok:null};
+    const belowMin=mn&&dealRev<mn*0.5;
+    const aboveMax=mx&&dealRev>mx*1.5;
+    if(belowMin)return{score:0,ok:false};
+    if(aboveMax)return{score:0,ok:false};
+    const withinRange=(!mn||dealRev>=mn)&&(!mx||dealRev<=mx);
+    if(withinRange)return{score:100,ok:true};
+    // close but outside
+    return{score:50,ok:null};
+  }
+
+  function ebitdaScore(inv){
+    if(!dealEbitda)return{score:50,ok:null};
+    const mn=parseN(inv.ebitdaMin),mx=parseN(inv.ebitdaMax);
+    if(!mn&&!mx)return{score:40,ok:null};
+    const belowMin=mn&&dealEbitda<mn*0.5;
+    const aboveMax=mx&&dealEbitda>mx*1.5;
+    if(belowMin)return{score:0,ok:false};
+    if(aboveMax)return{score:0,ok:false};
+    const withinRange=(!mn||dealEbitda>=mn)&&(!mx||dealEbitda<=mx);
+    if(withinRange)return{score:100,ok:true};
+    return{score:55,ok:null};
+  }
+
+  allMatchResults=investors.map(inv=>{
+    const rv=revScore(inv);
+    const ev=ebitdaScore(inv);
+    const sv=sectorScore(inv);
+    const composite=Math.round((rv.score*(wRev/total))+(ev.score*(wEbitda/total))+(sv.score*(wSector/total)));
+    // hard disqualify if both rev AND ebitda clearly out of range
+    const disq=(rv.ok===false&&ev.ok===false);
+    const finalScore=disq?Math.min(composite,15):composite;
+    const tier=finalScore>=65?'high':finalScore>=38?'med':'low';
+    return{inv,score:finalScore,tier,rv,ev,sv,disq};
+  }).sort((a,b)=>b.score-a.score);
+
+  renderMatchResults('all');
+  document.getElementById('match-filter-row').style.display='flex';
+}
+
+function filterMatchResults(tier,btn){
+  document.querySelectorAll('.match-filter-btn').forEach(b=>b.classList.remove('active-filter'));
+  btn.classList.add('active-filter');
+  renderMatchResults(tier);
+}
+
+function renderMatchResults(tier){
+  const div=document.getElementById('match-results');
+  let rows=allMatchResults;
+  if(tier!=='all') rows=rows.filter(r=>r.tier===tier);
+  if(!rows.length){div.innerHTML='<div class="empty-state">No results for this filter.</div>';return;}
+
+  div.innerHTML=rows.map(({inv,score,tier,rv,ev,sv,disq})=>{
+    const cls=tier==='high'?'b-mh':tier==='med'?'b-mm':'b-ml';
+    const color=tier==='high'?'#10B981':tier==='med'?'#F59E0B':'#CBD5E0';
+    const reachedStatus=gs(inv,'reached')==='yes'?'<span class="match-tag" style="background:var(--green-light);color:var(--green)">✓ Reached</span>':'<span class="match-tag" style="background:var(--border-light);color:var(--text-muted)">Not contacted</span>';
+    const respStatus=gs(inv,'response');
+    const respTag=respStatus==='Wants Intro'?`<span class="match-tag" style="background:var(--green-light);color:var(--green)">Wants Intro</span>`:respStatus==='Pass'?`<span class="match-tag" style="background:var(--red-light);color:var(--red)">Pass</span>`:respStatus==='Call Scheduled'?`<span class="match-tag" style="background:var(--blue-light);color:var(--blue)">Call Scheduled</span>`:'';
+
+    // build reason chips
+    const chips=[];
+    if(rv.ok===true) chips.push('<span class="match-tag" style="background:#ECFDF5;color:#065F46">✓ Rev in range</span>');
+    else if(rv.ok===false) chips.push('<span class="match-tag" style="background:var(--red-light);color:var(--red)">✗ Rev out of range</span>');
+    if(ev.ok===true) chips.push('<span class="match-tag" style="background:#ECFDF5;color:#065F46">✓ EBITDA in range</span>');
+    else if(ev.ok===false) chips.push('<span class="match-tag" style="background:var(--red-light);color:var(--red)">✗ EBITDA out of range</span>');
+    sv.reasons.forEach(r=>chips.push(`<span class="match-tag" style="background:var(--purple-pale);color:var(--purple)">★ ${r}</span>`));
+
+    return `<div class="match-result-row" onclick="jumpTo('${inv.name.replace(/'/g,"\\'")}')">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:4px">
+          <div class="match-result-name">${inv.name}</div>
+          ${reachedStatus}${respTag}
+        </div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:5px">${inv.hq||''}</div>
+        <div class="reason-row">${chips.join('')||'<span style="font-size:11px;color:var(--text-muted)">Limited data — check profile</span>'}</div>
+      </div>
+      <div style="text-align:center;min-width:56px;flex-shrink:0;margin-left:12px">
+        <div style="font-size:22px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:${color};line-height:1">${score}</div>
+        <span class="badge ${cls}" style="font-size:10px">${tier==='high'?'High':tier==='med'?'Med':'Low'}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function jumpTo(name){switchTab('tracker');document.getElementById('search-input').value=name;renderTable();}
+
+// TEASER PASTE PARSER
+function parsePaste(){
+  const raw=document.getElementById('d-paste').value;
+  const msg=document.getElementById('parse-msg');
+  if(!raw.trim()){msg.textContent='Nothing to parse.';msg.style.color='var(--amber)';return;}
+
+  let filled=0;
+
+  // Company name: first capitalized multi-word line or "Company Name: X"
+  const nameMatch=raw.match(/(?:company[:\s]+)([A-Z][^\n]{3,60})/i)||raw.match(/^([A-Z][A-Za-z &',.-]{3,50}(?:\s[A-Z][A-Za-z &',.-]+){1,6})/m);
+  if(nameMatch&&!document.getElementById('d-name').value){
+    document.getElementById('d-name').value=nameMatch[1].trim().replace(/\s+/g,' ');filled++;
+  }
+
+  // Revenue — look for REVENUE label + dollar amount, or "$X.XM revenue"
+  const revPatterns=[
+    /REVENUE[\s\n\r]*\$?([\d,.]+\s*[MBK]?)/i,
+    /revenue[:\s]+\$?([\d,.]+\s*[MBK])/i,
+    /\$([\d,.]+[MBK])\s+(?:in\s+)?revenue/i,
+    /revenue\s+of\s+\$?([\d,.]+\s*[MBK])/i,
+  ];
+  for(const p of revPatterns){
+    const m=raw.match(p);
+    if(m){document.getElementById('d-rev').value='$'+m[1].trim().replace(/\s/g,'');filled++;break;}
+  }
+
+  // EBITDA
+  const ebitdaPatterns=[
+    /EBITDA[\s\n\r]*\$?([\d,.]+\s*[MBK]?)/i,
+    /ebitda[:\s]+\$?([\d,.]+\s*[MBK])/i,
+    /\$([\d,.]+[MBK])\s+ebitda/i,
+  ];
+  for(const p of ebitdaPatterns){
+    const m=raw.match(p);
+    if(m){document.getElementById('d-ebitda').value='$'+m[1].trim().replace(/\s/g,'');filled++;break;}
+  }
+
+  // EBITDA Margin
+  const marginMatch=raw.match(/(\d{1,2}(?:\.\d)?)\s*%\s*ebitda\s*margin/i)||raw.match(/ebitda\s*margin[^%\d]*(\d{1,2}(?:\.\d)?)\s*%/i)||raw.match(/(\d{1,2})%\s*EBITDA/i);
+  if(marginMatch){document.getElementById('d-margin').value=marginMatch[1]+'%';filled++;}
+
+  // Location — City, ST pattern
+  const locMatch=raw.match(/([A-Z][a-zA-Z\s]+,\s*[A-Z]{2}(?:\s+Bay Area|[A-Za-z\s]*)?)/);
+  if(locMatch&&!document.getElementById('d-loc').value){document.getElementById('d-loc').value=locMatch[1].trim();filled++;}
+
+  // Website — domain pattern
+  const webMatch=raw.match(/(?:^|\s)((?:[a-z0-9-]+\.){1,3}(?:com|net|org|co))(?:\s|$)/im);
+  if(webMatch&&!document.getElementById('d-web').value){document.getElementById('d-web').value=webMatch[1].trim();filled++;}
+
+  // Transaction type
+  if(/majority recap/i.test(raw)){document.getElementById('d-txn').value='Majority Recap';filled++;}
+  else if(/full sale/i.test(raw)){document.getElementById('d-txn').value='Full Sale';filled++;}
+  else if(/minority/i.test(raw)){document.getElementById('d-txn').value='Minority Stake';filled++;}
+  else if(/open to offers|range of transaction/i.test(raw)){document.getElementById('d-txn').value='Open to Offers';filled++;}
+
+  // Sector — pick up from service/industry descriptors
+  const sectorKws=[
+    [/commercial\s+cleaning|janitorial|custodial/i,'Commercial Cleaning'],
+    [/pest\s+control|exterminator/i,'Pest Control'],
+    [/roofing|exterior\s+services/i,'Roofing & Exterior Services'],
+    [/hvac|plumbing|mechanical\s+services/i,'HVAC / Mechanical Services'],
+    [/landscaping|lawn\s+care|grounds/i,'Landscaping'],
+    [/restoration|remediation/i,'Restoration / Remediation'],
+    [/facility\s+services|facilities\s+management/i,'Facility Services'],
+    [/staffing|workforce/i,'Staffing'],
+    [/healthcare|medical/i,'Healthcare Services'],
+    [/technology|software|saas/i,'Technology / Software'],
+    [/manufacturing|fabrication/i,'Manufacturing'],
+  ];
+  for(const[rx,label]of sectorKws){
+    if(rx.test(raw)){document.getElementById('d-sector').value=label;filled++;break;}
+  }
+
+  // Highlights — grab bullet-point-like sentences (lines starting with ■, •, -, or caps sentences)
+  const bulletLines=raw.match(/[■•\-–]\s*[A-Z].{20,200}/g)||[];
+  const capSentences=raw.match(/[A-Z][^.!?]{40,200}[.!?]/g)||[];
+  const combined=[...bulletLines.slice(0,4),...capSentences.slice(0,3)];
+  if(combined.length&&!document.getElementById('d-highlights').value){
+    document.getElementById('d-highlights').value=combined.map(s=>s.replace(/^[■•\-–]\s*/,'')).join('\n').trim().slice(0,800);
+    filled++;
+  }
+
+  if(filled>0){
+    msg.textContent=`✓ ${filled} field${filled>1?'s':''} filled in. Review and adjust as needed.`;
+    msg.style.color='var(--green)';
+  } else {
+    msg.textContent='Could not extract fields — try filling in manually.';
+    msg.style.color='var(--amber)';
+  }
+}
+
+// INV MODAL
+function buildContacts(cs){
+  return[0,1,2].map(i=>{const c=(cs&&cs[i])||{};return`<div style="padding:10px;background:var(--offwhite);border-radius:7px;margin-bottom:8px">
+    <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Contact ${i+1}</div>
+    <div class="form-grid" style="gap:8px">
+      <div class="form-group"><label>Name</label><input class="form-input" id="c${i}-name" value="${c.name||''}"></div>
+      <div class="form-group"><label>Title</label><input class="form-input" id="c${i}-title" value="${c.title||''}"></div>
+      <div class="form-group"><label>Email</label><input class="form-input" id="c${i}-email" value="${c.email||''}"></div>
+      <div class="form-group"><label>Phone</label><input class="form-input" id="c${i}-phone" value="${c.phone||''}"></div>
+    </div></div>`;}).join('');
+}
+function openAddInvModal(){
+  editInvId=null;
+  document.getElementById('inv-title').textContent='Add Investor';
+  document.getElementById('inv-sub').textContent='Fill in what you have — everything can be updated later.';
+  document.getElementById('inv-modal-deal-name').textContent=deals.find(d=>d.id===activeDealId)?.name||'';
+  ['f-name','f-hq','f-website','f-aum','f-rmin','f-rmax','f-emin','f-emax','f-sectors','f-portco','f-industries','f-notes','f-date'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-rsize').value='';document.getElementById('f-maj').value='Majority';
+  document.getElementById('f-reached').value='no';document.getElementById('f-response').value='Pending';document.getElementById('f-fee').value='No';
+  document.getElementById('contacts-fields').innerHTML=buildContacts([]);
+  document.getElementById('inv-overlay').classList.remove('hidden');
+}
+function openEditInvModal(id){
+  editInvId=id;const inv=investors.find(i=>i.id===id);
+  document.getElementById('inv-title').textContent=`Edit — ${inv.name}`;
+  document.getElementById('inv-sub').textContent='Update firm details, criteria, or contacts.';
+  document.getElementById('inv-modal-deal-name').textContent=deals.find(d=>d.id===activeDealId)?.name||'';
+  document.getElementById('f-name').value=inv.name||'';document.getElementById('f-hq').value=inv.hq||'';
+  document.getElementById('f-website').value=inv.website||'';document.getElementById('f-aum').value=inv.notesFirm||'';
+  document.getElementById('f-rmin').value=inv.revMin||'';document.getElementById('f-rmax').value=inv.revMax||'';
+  document.getElementById('f-rsize').value=inv.revSize||'';document.getElementById('f-emin').value=inv.ebitdaMin||'';
+  document.getElementById('f-emax').value=inv.ebitdaMax||'';document.getElementById('f-maj').value=inv.majority||'Majority';
+  document.getElementById('f-sectors').value=inv.sectors||'';document.getElementById('f-portco').value=inv.portco||'';
+  document.getElementById('f-industries').value=inv.industries||'';document.getElementById('f-reached').value=gs(inv,'reached');
+  document.getElementById('f-response').value=gs(inv,'response');document.getElementById('f-fee').value=gs(inv,'fee');
+  document.getElementById('f-date').value=gs(inv,'lastContact');document.getElementById('f-notes').value=gs(inv,'notes');
+  document.getElementById('contacts-fields').innerHTML=buildContacts(inv.contacts||[]);
+  document.getElementById('inv-overlay').classList.remove('hidden');
+}
+function closeInvModal(){document.getElementById('inv-overlay').classList.add('hidden');}
+function saveInvestor(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('Firm name is required.');return;}
+  const contacts=[0,1,2].map(i=>({name:document.getElementById(`c${i}-name`)?.value.trim()||'',title:document.getElementById(`c${i}-title`)?.value.trim()||'',email:document.getElementById(`c${i}-email`)?.value.trim()||'',phone:document.getElementById(`c${i}-phone`)?.value.trim()||''})).filter(c=>c.name);
+  const base={name,hq:document.getElementById('f-hq').value.trim(),website:document.getElementById('f-website').value.trim(),notesFirm:document.getElementById('f-aum').value.trim(),revMin:document.getElementById('f-rmin').value.trim(),revMax:document.getElementById('f-rmax').value.trim(),revSize:document.getElementById('f-rsize').value,ebitdaMin:document.getElementById('f-emin').value.trim(),ebitdaMax:document.getElementById('f-emax').value.trim(),majority:document.getElementById('f-maj').value,sectors:document.getElementById('f-sectors').value.trim(),portco:document.getElementById('f-portco').value.trim(),industries:document.getElementById('f-industries').value.trim(),contacts};
+  const ds={reached:document.getElementById('f-reached').value,response:document.getElementById('f-response').value,fee:document.getElementById('f-fee').value,lastContact:document.getElementById('f-date').value,notes:document.getElementById('f-notes').value.trim()};
+  if(editInvId){
+    const idx=investors.findIndex(i=>i.id===editInvId);
+    if(!investors[idx].dealStatus)investors[idx].dealStatus={};
+    investors[idx].dealStatus[activeDealId]={...(investors[idx].dealStatus[activeDealId]||{}),...ds};
+    investors[idx]={...investors[idx],...base};
+  }else{investors.push({id:uid(),...base,dealStatus:{[activeDealId]:ds}});}
+  persist();closeInvModal();renderStats();renderTable();
+}
+
+async function manualRefresh(){
+  showSyncStatus('Refreshing…');
+  try{
+    const [invRows,dealRows]=await Promise.all([sbGet('investors'),sbGet('deals')]);
+    if(invRows.length||dealRows.length){
+      investors=invRows.map(r=>r.data).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      deals=dealRows.map(r=>r.data);
+      localStorage.setItem('ipp_inv3',JSON.stringify(investors));
+      localStorage.setItem('ipp_deals3',JSON.stringify(deals));
+    }
+    const sa=localStorage.getItem('ipp_active3');
+    activeDealId=(sa&&deals.find(d=>d.id===sa))?sa:(deals[0]?.id||null);
+    refreshAll();
+    showSyncStatus('✓ Up to date');
+  }catch(e){showSyncStatus('⚠ Could not reach database',false);}
+}
+
+// TABS
+function switchTab(tab){
+  ['tracker','deals','matcher'].forEach((t,i)=>{
+    document.getElementById(`tab-${t}`).classList.toggle('hidden',t!==tab);
+    document.querySelectorAll('.tab-btn')[i].classList.toggle('active',t===tab);
+  });
+  if(tab==='deals')renderDealsGrid();
+  if(tab==='matcher')fillMatcherDeal();
+}
+
+document.getElementById('inv-overlay').addEventListener('click',function(e){if(e.target===this)closeInvModal();});
+document.getElementById('deal-overlay').addEventListener('click',function(e){if(e.target===this)closeDealModal();});
+
+// DEFAULT DATA
+function defaultDeals(){
+  return[{id:uid(),name:'McNevin Cleaning Specialists',loc:'Burlingame, CA',web:'mcnevincleaning.com',rev:'$2.5M',ebitda:'$600K',margin:'24%',sector:'Commercial Cleaning / Specialty Flooring',txn:'Open to Offers',highlights:'37-year Bay Area institution, 2nd-generation ownership (Molly & Nate McNevin). ~100 recurring accounts on 12–24 month programs. Blue-chip clients: CBRE, Cushman & Wakefield, Kilroy Realty, SF State University. Deep specialty flooring expertise: carpet, tile & grout, luxury vinyl plank, upholstery. 25 W-2 employees. 24% EBITDA margin. Open to majority recap or full sale.'}];
+}
+function defaultInvestors(){
+  return[
+{id:uid(),name:'Gauge Capital',hq:'Southlake, TX',website:'gaugecapital.com',revMin:'$20M',revMax:'$200M',revSize:'Med',ebitdaMin:'$5M',ebitdaMax:'$50M',majority:'Both',sectors:'Business Services, Healthcare Services, Consumer Products, Food & Beverage, Industrial, Technology',portco:'Aptive Environmental (pest control; ~$450M revenue; 5th largest US pest control operator)',industries:'Pest Control, Business Services, Consumer',reached:'yes',response:'Call Scheduled',fee:'No',lastContact:'2026-06-29',notes:'Call scheduled 6/29/26 — wants to chat about insurance',contacts:[{name:'Zach Phillips',title:'M&A Sourcing Lead',email:'zphillips@gaugecapital.com',phone:''},{name:'Alexander Anderson',title:'',email:'aanderson@gaugecapital.com',phone:''}]},
+{id:uid(),name:'Audax Private Equity',hq:'Boston, MA',website:'audaxprivateequity.com',revMin:'$20M',revMax:'$500M',revSize:'Med',ebitdaMin:'$5M',ebitdaMax:'$35M',majority:'Majority',sectors:'Business Services, Consumer, Financial Services, Healthcare, Industrial, Software & Technology',portco:'',industries:'Business Services, Industrial',reached:'yes',response:'No Response',fee:'No',lastContact:'2026-06-27',notes:'Not looking for add-ons',contacts:[{name:'Gregory Smith',title:'Senior Managing Director',email:'gsmith@audaxgroup.com',phone:''},{name:'Andrew Oliver',title:'Managing Director',email:'aoliver@audaxgroup.com',phone:''},{name:'David Santoni',title:'Managing Director, Business Development',email:'dsantoni@audaxgroup.com',phone:''}]},
+{id:uid(),name:'Blue Sage Capital',hq:'Austin, TX',website:'bluesage.com',revMin:'$20M',revMax:'$200M',revSize:'Med',ebitdaMin:'$4M',ebitdaMax:'$15M',majority:'Majority',sectors:'Niche Manufacturing, Environmental Solutions, Specialty Services',portco:'',industries:'Specialty Services, Flooring/Property Repair',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-28',notes:'Flooring/property repair services fit, VRM fit',contacts:[{name:'Peter Huff',title:'Co-founder & Managing Member',email:'peter.huff@bluesage.com',phone:''},{name:'Eric Weiner',title:'Partner',email:'eric.weiner@bluesage.com',phone:''},{name:'Jonathan Kaskow',title:'Partner',email:'jonathan.kaskow@bluesage.com',phone:''}]},
+{id:uid(),name:'Broadtree Partners',hq:'Charlotte, NC',website:'broadtreepartners.com',revMin:'$5M',revMax:'$75M',revSize:'Low',ebitdaMin:'$1M',ebitdaMax:'$10M',majority:'Majority',sectors:'Business Services, Consumer Products, Distribution, Healthcare, Manufacturing, Software',portco:'',industries:'Business Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'',contacts:[{name:'Johannes Zwick',title:'Managing Partner',email:'jzwick@broadtreepartners.com',phone:''},{name:'Brad Batten',title:'Managing Partner',email:'bbatten@broadtreepartners.com',phone:''},{name:'David Slenzak',title:'Founder & Managing Partner',email:'',phone:'(704) 228-1262'}]},
+{id:uid(),name:'CIVC Partners',hq:'Chicago, IL',website:'civc.com',revMin:'$25M',revMax:'$250M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services (focus), IT-enabled Services, Healthcare Services',portco:'',industries:'Business Services, Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-26',notes:'Janitorial Fit',contacts:[{name:'Doug Potters',title:'Partner',email:'dpotters@civc.com',phone:''},{name:'J.J. Wright',title:'Partner',email:'jwright@civc.com',phone:''},{name:'Marc McManus',title:'Partner',email:'mmcmanus@civc.com',phone:''}]},
+{id:uid(),name:'Frontenac',hq:'Chicago, IL',website:'frontenac.com',revMin:'$10M',revMax:'$200M',revSize:'Low',ebitdaMin:'$5M',ebitdaMax:'$40M',majority:'Majority',sectors:'Consumer, Industrial, Services, Food, Healthcare, Financial Services, Technology Services',portco:'',industries:'Services, Janitorial, Commercial Cleaning',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-26',notes:'Janitorial Fit',contacts:[{name:'Joseph Rondinelli',title:'Managing Director',email:'jrondinelli@frontenac.com',phone:''},{name:'Ronald Kuehl',title:'Managing Partner',email:'rkuehl@frontenac.com',phone:''},{name:'Walter Florence',title:'Managing Partner',email:'wflorence@frontenac.com',phone:'(312) 629-3152'}]},
+{id:uid(),name:'Graycliff Partners',hq:'New York, NY',website:'graycliffpartners.com',revMin:'$15M',revMax:'$150M',revSize:'Low',ebitdaMin:'$3M',ebitdaMax:'$20M',majority:'Majority',sectors:'Niche Manufacturing, Business Services, Value-Added Distribution',portco:'',industries:'Business Services, Specialty Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-26',notes:'Janitorial Fit',contacts:[{name:'Andrew Trigg',title:'Managing Partner',email:'atrigg@graycliffpartners.com',phone:''},{name:'Duke Punhong',title:'Managing Partner',email:'dpunhong@graycliffpartners.com',phone:''}]},
+{id:uid(),name:'Kinderhook Industries',hq:'New York, NY',website:'kinderhook.com',revMin:'$25M',revMax:'$500M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Healthcare Services, Environmental & Industrial Services, Automotive, Light Manufacturing',portco:'',industries:'Environmental & Industrial Services, Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Janitorial Fit',contacts:[{name:'Michael Zoch',title:'Managing Director',email:'mzoch@kinderhook.com',phone:''},{name:'Paul Cifelli',title:'Managing Director',email:'pcifelli@kinderhook.com',phone:''}]},
+{id:uid(),name:'BHMS Investments',hq:'',website:'',revMin:'',revMax:'',revSize:'',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'',portco:'',industries:'Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Janitorial Fit — Reintroduced',contacts:[{name:'Kevin Angelis',title:'Co-Founder & Managing Partner',email:'kevin.angelis@bhmsinvestments.com',phone:''},{name:'Robert Salamon',title:'Co-Founder & Managing Partner',email:'robert.salamon@bhmsinvestments.com',phone:''}]},
+{id:uid(),name:'Gridiron Capital',hq:'New Canaan, CT',website:'gridironcapital.com',revMin:'$25M',revMax:'$300M',revSize:'Med',ebitdaMin:'',ebitdaMax:'$60M',majority:'Majority',sectors:'Business Services, Consumer Products & Services, Industrial Growth',portco:'',industries:'Business Services, Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Janitorial Fit — Reintroduced',contacts:[{name:'Thomas Burger',title:'Co-Founder & Managing Partner',email:'tburger@gridironcapital.com',phone:''},{name:'Andrew Kahn',title:'Managing Director',email:'akahn@gridironcapital.com',phone:''}]},
+{id:uid(),name:'Incline Equity Partners',hq:'Pittsburgh, PA',website:'inclineequity.com',revMin:'$25M',revMax:'$200M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Services, Value-Added Distribution, Software & Technology, Specialty Light Manufacturing',portco:'',industries:'Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Reintroducing after ACG Orlando',contacts:[{name:'Jack Glover',title:'Co-founder & Managing Partner',email:'jack.glover@inclineequity.com',phone:''},{name:'Eric Haufler',title:'Managing Director',email:'eric.haufler@inclineequity.com',phone:''}]},
+{id:uid(),name:'KLH Capital',hq:'Tampa, FL',website:'klhcapital.com',revMin:'$10M',revMax:'$150M',revSize:'Low',ebitdaMin:'$2M',ebitdaMax:'',majority:'Both',sectors:'Distribution, Service, Manufacturing',portco:'',industries:'Service, Distribution',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Reintroduced',contacts:[{name:'David Buckel',title:'Partner',email:'dbuckel@klhcapital.com',phone:''},{name:'Kyle Madden',title:'Partner',email:'kyle@klhcapital.com',phone:''}]},
+{id:uid(),name:'Plexus Capital',hq:'Raleigh, NC',website:'plexuscapital.com',revMin:'$5M',revMax:'$75M',revSize:'Low',ebitdaMin:'$1M',ebitdaMax:'',majority:'Both',sectors:'Business Services, Healthcare, Manufacturing, Technology, Distribution',portco:'',industries:'Business Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-27',notes:'Reintroduced',contacts:[{name:'Bob Anders',title:'Co-founder & Partner',email:'banders@plexuscap.com',phone:''},{name:'Michael Painter',title:'Co-Founder, Managing Partner',email:'mpainter@plexuscap.com',phone:''}]},
+{id:uid(),name:'Ares',hq:'Los Angeles, CA',website:'aresmgmt.com',revMin:'$100M',revMax:'$2B+',revSize:'High',ebitdaMin:'',ebitdaMax:'',majority:'Both',sectors:'Healthcare, Software & Technology, Business Services, Consumer, Industrials, Financial Services',portco:'Palm Atlantic Landscaping, Tipping Hat Plumbing Heating & Electric, Landcrafters',industries:'Business Services, Landscaping',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-28',notes:'Deals: Palm Atlantic Landscaping (6/26), Tipping Hat Plumbing (5/26), Landcrafters (5/26)',contacts:[{name:'Amy Fujimoto',title:'Partner',email:'afujimoto@aresmgmt.com',phone:''},{name:'Jim Hirshorn',title:'Partner',email:'jhirshorn@aresmgmt.com',phone:''}]},
+{id:uid(),name:'Argonne Capital Group',hq:'Atlanta, GA',website:'argonnecapital.com',revMin:'$20M',revMax:'$200M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Restaurant/Franchise, Consumer Services, Business Services',portco:'Schill Grounds Management (2025), Elevations Landscaping (2025), Pinnacle Landscaping (2024)',industries:'Landscaping, Consumer Services, Franchise',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-29',notes:'Landscaping platform focus. Prior outreach to Nedu with no response.',contacts:[{name:'Karl Jaeger',title:'Vice Chairman',email:'kjaeger@argonnecapital.com',phone:''},{name:'Patrick Anderson',title:'Senior Vice President',email:'panderson@argonnecapital.com',phone:''}]},
+{id:uid(),name:'Assurance Capital',hq:'',website:'',revMin:'',revMax:'',revSize:'',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Healthcare',portco:'',industries:'Commercial Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-28',notes:'Emailed + 4 Star General Teaser. Commercial services focus.',contacts:[{name:'Jeff Phillips',title:'Partner',email:'jphillips@assurancecapitalfunds.com',phone:'407-906-2519'},{name:'Seth Ellis',title:'Partner',email:'sellis@assurancecapitalfunds.com',phone:'407-906-2484'}]},
+{id:uid(),name:'Wind Point Partners',hq:'Chicago, IL',website:'wppartners.com',revMin:'$25M',revMax:'$500M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Consumer Products, Industrial Products, Food, Engineering, Packaging',portco:'',industries:'Recurring Service Roll-ups, Lawn Care, Business Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-28',notes:'Active in recurring service roll-ups including lawn care and pest-related platforms',contacts:[{name:'Felipe Soares',title:'Head of Value Creation',email:'fsoares@wppartners.com',phone:''},{name:'Alex Washington',title:'Managing Director',email:'awashington@wppartners.com',phone:''}]},
+{id:uid(),name:'Riverside',hq:'New York, NY',website:'riversidecompany.com',revMin:'$1M',revMax:'$400M+',revSize:'Low',ebitdaMin:'$1M',ebitdaMax:'$50M',majority:'Both',sectors:'Business Services, Consumer Brands, Education, Healthcare, Software & IT, Manufacturing, Franchises',portco:'',industries:'Business Services, Consumer, Franchises',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-29',notes:'Met at ACG San Diego 03/26 — Reintroduced + HVAC Teaser',contacts:[{name:'George Cole',title:'Managing Partner',email:'gcole@riversidecompany.com',phone:''},{name:'Jeffrey Gordon',title:'Managing Partner',email:'jgordon@riversidecompany.com',phone:''}]},
+{id:uid(),name:'The Halifax Group',hq:'Washington, DC',website:'thehalifaxgroup.com',revMin:'$20M',revMax:'$200M',revSize:'Med',ebitdaMin:'$8M',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Healthcare Services, Infrastructure Services, Wellness Products & Services',portco:'',industries:'Business Services, Infrastructure Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-28',notes:'Emailed',contacts:[{name:'Will Morrissett',title:'Vice President',email:'wmorrissett@thehalifaxgroup.com',phone:''},{name:'Chris Cathcart',title:'Managing Partner',email:'ccathcart@thehalifaxgroup.com',phone:''}]},
+{id:uid(),name:'Bow River Capital',hq:'Denver, CO',website:'bowrivercapital.com',revMin:'$25M',revMax:'$200M',revSize:'Med',ebitdaMin:'$3M',ebitdaMax:'$50M',majority:'Both',sectors:'Business Services, Industrial Services, Healthcare, Engineering, Environmental, Manufacturing, Software',portco:'Ecowaste Solutions, ACV Enviro, Compactor Rentals of America',industries:'Environmental & Industrial Services',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-22',notes:'Scheduling re-introduction',contacts:[{name:'Griffin Midler',title:'Vice President',email:'midler@bowrivercapital.com',phone:''},{name:'Amanda Tallman',title:'Director of BD',email:'tallman@bowrivercapital.com',phone:''}]},
+{id:uid(),name:'Braemont Capital',hq:'Dallas, TX',website:'braemontcapital.com',revMin:'$10M',revMax:'$100M',revSize:'Low',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Healthcare Services, Industrial Services',portco:'Greenix Pest Control, Legacy Service Partners',industries:'Residential & Commercial Services, Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-29',notes:'VRM and Janitorial fit. Emailed + CMAX and DBS teasers.',contacts:[{name:'Eliza Calihan',title:'Managing Director',email:'ecalihan@braemont.com',phone:''}]},
+{id:uid(),name:'Clearview Capital',hq:'Westport, CT',website:'clearviewcapital.com',revMin:'$10M',revMax:'$150M',revSize:'Low',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Consumer, Industrial, Healthcare, Technology',portco:'Capital Services (2023)',industries:'Business Services, Janitorial',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-29',notes:'Janitorial fit (Capital Services 2023). Emailed + CMAX teaser.',contacts:[{name:'Lawrence Simon',title:'Partner',email:'lsimon@clearviewcap.com',phone:''},{name:'William Case',title:'Managing Partner',email:'wcase@clearviewcap.com',phone:''}]},
+{id:uid(),name:'Rockwood Equity Partners',hq:'',website:'',revMin:'',revMax:'',revSize:'',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'',portco:'AXN Growth Partners (pest control, ACTION brand)',industries:'Maintenance & Repair, Janitorial Cleaning',reached:'yes',response:'Pending',fee:'No',lastContact:'2026-06-29',notes:'Met Kate at ACG San Diego 03/26. Janitorial/maintenance fit. Reintroduced + PPP teaser.',contacts:[{name:'Joe Merrill',title:'Managing Partner',email:'jmerrill@rockwoodequity.com',phone:'(216) 342-1792'},{name:'Brett Keith',title:'Co-Founder & Managing Partner',email:'bkeith@rockwoodequity.com',phone:'(212) 218-8284'}]},
+{id:uid(),name:'VSS Capital Partners',hq:'New York, NY',website:'vsscap.com',revMin:'$25M',revMax:'$500M',revSize:'Med',ebitdaMin:'',ebitdaMax:'',majority:'Both',sectors:'Media, Education, Healthcare, Business Information Services',portco:'',industries:'Healthcare, Business Services, Residential Services',reached:'yes',response:'Wants Intro',fee:'No',lastContact:'2026-06-29',notes:'Interested in exploring Resi & pest control. Zoom meeting Virginia & Alex on 11/25/25 after ACG Orlando.',contacts:[{name:'Jordan Margolin',title:'Head of Business Development',email:'margolin@vss.com',phone:''},{name:'Patrick Turner',title:'Partner & Senior Managing Director',email:'turnerp@vss.com',phone:''}]},
+{id:uid(),name:'Alston Capital Partners',hq:'',website:'',revMin:'',revMax:'',revSize:'',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'',portco:'USA DeBusk (2024)',industries:'Environmental/Commercial Cleaning',reached:'yes',response:'Pass',fee:'No',lastContact:'2026-06-29',notes:'Very high EBITDA requirement. Emailed + PPP teaser.',contacts:[{name:'Robert Egan',title:'Founding Partner',email:'egan@alstoncapital.com',phone:''},{name:'Daniel Clark',title:'Partner',email:'clark@alstoncapital.com',phone:''}]},
+{id:uid(),name:'Shore Capital Partners',hq:'Chicago, IL',website:'shorecp.com',revMin:'$5M',revMax:'$100M',revSize:'Low',ebitdaMin:'$1M',ebitdaMax:'$10M',majority:'Majority',sectors:'Healthcare, Food & Beverage, Business Services, Industrials, Real Estate',portco:'',industries:'Healthcare, Business Services',reached:'no',response:'Pending',fee:'No',lastContact:'',notes:'',contacts:[]},
+{id:uid(),name:'Pfingsten Partners',hq:'Chicago, IL',website:'pfingstenpartners.com',revMin:'$20M',revMax:'$150M',revSize:'Med',ebitdaMin:'$3M',ebitdaMax:'$20M',majority:'Majority',sectors:'Manufacturing, Distribution, Business Services',portco:'',industries:'Manufacturing, Business Services',reached:'no',response:'Pending',fee:'No',lastContact:'',notes:'',contacts:[]},
+{id:uid(),name:'Mill Point Capital',hq:'New York, NY',website:'millpointcapital.com',revMin:'$15M',revMax:'$200M',revSize:'Low',ebitdaMin:'',ebitdaMax:'',majority:'Majority',sectors:'Business Services, Industrial, Healthcare, Consumer',portco:'',industries:'Business Services, Industrial',reached:'no',response:'Pending',fee:'No',lastContact:'',notes:'Potential landscaping fit.',contacts:[]},
+  ];
+}
+</script>
+</body>
+</html>
